@@ -1,0 +1,11 @@
+"Type","System","SQL?","Load/Read","Aggregation","Join"
+"Statistics","R DT","no",30,"5.5","6.5"
+"Statistics","R dplyr","yes",30,45,40
+"Statistics","Python pandas","no",30,8,25
+"Relationnal","MySQL MyISAM","yes",40,45,470
+"Relationnal","PostgreSQL","yes",120,175,55
+"Column-based","MonetDB","yes",70,7,"1.5"
+"Parallel","Spark","yes",20,40,30
+"Column-based","Omnisci (GPU)","yes",12,"0.5","0.1"
+"Column-based","Omnisci (CPU)*","yes",10,"2.4","0.3"
+"Relationnal","SQLite (file + index)*","yes",150,146,304

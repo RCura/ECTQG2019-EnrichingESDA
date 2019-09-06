@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Enriching Exploratory Spatial Data Analysis with modern computer tool.</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Robin Cura" />
+    <link rel="stylesheet" href="mtheme.css" type="text/css" />
+    <link rel="stylesheet" href="fonts_mtheme.css" type="text/css" />
+    <link rel="stylesheet" href="hygge-duke.css" type="text/css" />
+    <link rel="stylesheet" href="footer-header.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+layout: true
+
+&lt;html&gt;&lt;div class="my-footer"&gt;&lt;div&gt;Robin Cura&lt;/div&gt;&lt;div&gt;ECTQG 2019&lt;/div&gt;&lt;div&gt;06 September 2019&lt;/div&gt;&lt;/div&gt;&lt;/html&gt;
+
+---
+class: inverse, center, top
+
+.pull-left[
+![:scale 50%](img/Logo_P1.png)
+]
+.pull-right[
+![:scale 30%](img/Logo_GC.png)
+]
+
+&lt;br /&gt;
+&lt;br /&gt;
+
+# Enriching Exploratory Spatial Data Analysis with modern computer tools
+
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=720px&gt;&lt;/html&gt;
+
+&lt;br /&gt;
+### Robin CURA, PhD Student in Geography
+### Univ. Paris 1 Panthéon-Sorbonne &amp; Géographie-cités laboratory 
+
+.center[
+![:scale 30%](img/Logo_ECTQG2019_transparent.png)
+]
+
+---
+class: inverse, middle, center
+
+# Handling massive data sources with classical tools
+
+---
+# An intermediate kind of data
+
+## Handling the recent  .highlight-box-yellow[massive data] sources
+
+.pull-left[
+### ~~"Big Data"~~
+
+* Data that can't fit on a personnal computer
+* Few evolutions in the last years
+* Still the usual distributed computing solutions : Hadoop, Apache Spark
+* Still hard to grasp for non computer scientists
+]
+
+.pull-left[
+### Traditionnal ~~large data~~
+e.g. census data, territorial mesh data etc.
+
+* Can be managed in most analysis softwares
+* Often adapted for spreadsheets, GIS, GUI softwares (GeoDA...) etc.
+* Can also be analyzed with CLI analysis tools like R or Python (cf. yesterday's workshop)
+]
+
+### What lies in-between these dataset types ?
+
+
+---
+# An intermediate kind of data
+
+.small[
+
+| Data                         	|               	|                                                                       	| Storage and analysis                             	|                                                                          	|
+|------------------------------	|---------------	|-----------------------------------------------------------------------	|--------------------------------------------------	|--------------------------------------------------------------------------	|
+| Quantity                     	| Memory size   	| Examples                                                              	| Storage infrastructure                           	| Analysis and visualization tools                                         	|
+| Up to 1,000 rows             	| ~1 MB         	| Aggregated census data                                                	| Text file                                        	| Spreadsheets, GIS                                                       	|
+| 1,000-100,000 rows           	| ~1-50 MB      	| Detailed Census data                                                  	| Text files                                                  	|  GIS, GUI software (GeoDA, Tableau...) etc.                                                                          	|
+| 100,000 – a few million rows 	| ~50 MB – 1 GB 	| Individual data, time series of multiple sensors                      	| Spreadsheet or binary files (SHP, geopackage...) 	| Interactive (GUI) statistical tool or Command-Line Interface (CLI) tools 	|
+| 10 to 100 million rows       	| ~1 - 10 GB    	| Many new open datasets : equipments, user-generated content, VGI etc. 	| **???**                                              	| **???**                                                                      	|
+| &gt; 100 million rows           	| &gt; 10s of GB   	| Spatio-temporal data, automated reporting, big companies datasets ... 	| Distributed Databases                            	| High-Performance Computing                                               	|
+
+]
+
+---
+# Handling massive data
+
+### It's not really a new problem
+
+* Traditionnal handling : relational DMBS, e.g. MySQL, PostgreSQL, SQLite
+  * Great for :
+		* archiving large data
+		* multiple users and concurrent queries
+		* updatability
+		* diversity of types and queries
+		* customisation
+		* universality through SQL
+	* Issues with : **speed**
+		* install/setup : can't be setup in a few minutes
+		* data import : made for updating, slow for massive imports
+		* queries : row-based DMBS : slow for global data aggregates/joins
+
+**Traditionnal relationnal DBMS are not that good a fit for Exploratory Data Analysis (EDA).**
+
+* Mostly a single-user context, requiring many back and forth between global structure and peculiarities  
+
+
+---
+# A few benchmarks
+
+![:scale 97%](img/benchmark_results2.png)
+
+---
+# Using the new generation of colum-based DBMS 
+
+### Advantages :
+* Easy to setup
+* Fast for data insert
+* Fast (extremely) for column-based operations : agregation, joins
+* Can be queried through SQL (at least some of them)
+
+### Weaknesses :
+* Not performant for upserts and data updates
+* Not as mature as relational DBMS : still the state of the art, although used a lot by big tech companies
+* Less operators/flexibility on queries (especially spatial queries : nothing can reach PostGIS spatial queries)
+
+
+---
+# An example of a columnar DBMS
+
+### Presenting the example of Omnisci (former MapD), an open-source* columnar DBMS
+
+* A DBMS made for GPU processing :
+  * Can query hundreds of billions of rows in a blink
+  * When it is run on an adapted hardware configurations : high-end GPUs etc.
+  * Check [www.omnisci.com/demos](www.omnisci.com/demos) : 
+  
+.center[
+![:scale 55%](img/shipping_4.gif)
+]
+
+  * Still works very well for 10⁶-10⁸ rows-data on an aging personnal computer without GPU
+
+---
+# Illustrating an EDA approach using Omnisci
+
+### Example dataset :
+The recent governement opendataset on real estate transactions : the DVF ("Demande de Valeurs Foncières")
+* Logs all (public and private) real estate transactions on *almost* all of France
+* Detailed geolocation : cadastral parcel (e.g. big as a building)
+* Detailed price for each transaction, with the corresponding informations on the real estate types, area and composition
+* Yearly, since 2014
+
+.pull-left[
+![:scale 90%](img/DVF.png)
+]
+
+.pull-right[
+* 1 year : ~ 3M rows : easy to manage through CLI
+* 5 years (2014-2018) : ~15M rows, doesn't fit in memory
+* A good candidate for a quick test/demo
+]
+
+---
+# Illustrating an EDA approach using Omnisci
+
+## Preparing the DBMS :
+* Run through Docker container :
+.small[`docker run -name testdb -d -v $HOME/omnisci-docker-storage:/omnisci-storage -p 6273-6280:6273-6280 omnisci/core-os-cpu`]
+* Prepare the database :
+  * Log to Omnisci container : .small[`docker container exec -ti testdb /bin/bash`]
+  * Run the sql shell and create the table :
+.small[
+```sql
+CREATE TABLE dvf ( id_mutation TEXT, annee SMALLINT, [...]);
+```
+]
+  * Populate the table : .small[`COPY dvf FROM '/data/dvf_2014-2018.csv.gz';`] (~couple minutes)
+  * Verify that the data looks correct (sub-seconds query)
+  
+```
+omnisql&gt; SELECT COUNT(*) AS n_rows FROM dvf;
+&gt; n_rows
+&gt; 13 255 975
+```
+#### The full DB infrastructure can be setup in a few lines and ready in a few minutes
+
+---
+# Exploring the database with R
+
+#### Omnisci has a SQL interface, through ODBC/JDBC  
+  -&gt; It can be interactively queried from both R (using `RJDBC`) and from Python (`pymapd`)  
+  -&gt; Here, examples using R and tidyverse-style piped queries through the common database connection `DBI`
+
+.small[
+
+```r
+*# Connecting to the DB
+db_connection &lt;- DBI::dbConnect(drv = db_driver, [credentials],
+                                url = "jdbc:omnisci:localhost:6274:omnisci")
+# Loading the table
+*dvf_data &lt;- tbl(src = db_connection, "dvf")
+dvf_data
+```
+]
+
+.tiny[
+
+```
+## # Source:   table&lt;dvf&gt; [?? x 22]
+## # Database: JDBCConnection
+##    id_mutation annee date_mutation dept  code_commune section id_parcelle nature_mutation valeur_fonciere nombre_lots type_local surface_reelle_…
+##    &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;         &lt;chr&gt; &lt;chr&gt;        &lt;chr&gt;   &lt;chr&gt;       &lt;chr&gt;                     &lt;dbl&gt;       &lt;dbl&gt; &lt;chr&gt;                 &lt;dbl&gt;
+##  1 2018-1       2018 2018-01-03    01    01053        010530… 01053000AN… Vente                    109000           1 Dépendance               NA
+##  2 2018-1       2018 2018-01-03    01    01053        010530… 01053000AN… Vente                    109000           2 Apparteme…               73
+##  3 2018-2       2018 2018-01-04    01    01095        010950… 01095000AH… Vente                    239300           0 Maison                  163
+##  4 2018-2       2018 2018-01-04    01    01095        010950… 01095000AH… Vente                    239300           0 Maison                   51
+##  5 2018-2       2018 2018-01-04    01    01095        010950… 01095000AH… Vente                    239300           0 Maison                   51
+##  6 2018-2       2018 2018-01-04    01    01095        010950… 01095000AH… Vente                    239300           0 Maison                  163
+##  7 2018-3       2018 2018-01-04    01    01343        013430… 01343000ZR… Vente                     90000           0 NA                       NA
+##  8 2018-3       2018 2018-01-04    01    01343        013430… 01343000ZR… Vente                     90000           0 Maison                  150
+##  9 2018-3       2018 2018-01-04    01    01343        013430… 01343000ZR… Vente                     90000           0 NA                       NA
+## 10 2018-6       2018 2018-01-04    01    01053        010530… 01053000BD… Vente                     67000           1 Apparteme…               45
+## # … with more rows, and 10 more variables: nombre_pieces_principales &lt;dbl&gt;, nature_culture &lt;chr&gt;, nature_culture_speciale &lt;chr&gt;,
+## #   surface_terrain &lt;dbl&gt;, latitude &lt;dbl&gt;, longitude &lt;dbl&gt;, surface2 &lt;dbl&gt;, type_surface &lt;chr&gt;, prix_surface &lt;dbl&gt;, mois &lt;dbl&gt;
+```
+]
+---
+
+# Exploring the database with R
+  
+#### Basic EDA
+.small[
+
+```r
+dvf_data %&gt;% group_by(annee, mois) %&gt;%
+  summarise(nb_transactions = n(), meanPrice = mean(valeur_fonciere, na.rm = TRUE)) %&gt;%
+  ungroup() %&gt;% arrange(annee, mois) %&gt;%
+* collect() %&gt;%  # Run computations inside the DB , retrieve the results locally
+  gather(Var, Value, -annee, -mois) %&gt;%
+  ggplot() + aes(mois, Value, fill = mois) +geom_col() +
+  facet_grid(Var~annee, scales = "free_y")
+```
+]
+
+###### Mean transaction price and number of transaction through months and years
+.center[
+![](20190906_CURA_ECTQG2019_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+]
+
+---
+class: middle, center
+
+## Handling massive data sources with classical tools
+ * #### Many new-generations DBMS (NoSQL, graph DB, collection/document DB etc.)
+ * #### Among these, the relational column-based DBMS can offer a known and almost-universal interface (SQL) and integrate very easily our already existing workflows for EDA
+ * #### This allows to scale up, for a few order of magnitudes, the amount of data that *any* quantitativist geographer can now analyse
+ * #### Omnisci (but likewise Yandex's ClickHouse, MonetDB, Amazon Redshift, DuckDB, Uber's AresDB (soon) etc.) offers a quick-to-setup interface to managing such data
+
+---
+class: inverse, middle, center
+
+# What about spatial data visualisation ?
+
+---
+# What about spatial data visualisation ?
+
+### Often requires visualization of the spatial data
+* Huge historical strength of GIS
+  * Very good interaction with DBMS (e.g. QGIS was conceived as a PostGIS viewer)
+	* Still disruptive inside an EDA CLI-based workflow
+
+* CLI (Python/R) :
+	* Many static visualisations : plot(SPDF), matplotlib, geoPandas.plot, ggplot2(sf) etc.
+	* Yet, Shneiderman's mantra : *"Overview First, Zoom and Filter, Then Details-on-Demand"*
+
+* For a few years, domination of Leaflet :
+  * Vectorial data allows powerfull interactions
+  * Limited in data quantities
+	* Use of raster- (or vector-) tiles to handle larger data
+	* Lacks of interactivity
+
+---
+# What about spatial data visualisation ?
+
+##### Main problem : Leaflet can't support CLI-size data :
+.small[
+* Hard to display/interact with more than a few hundreds polygons (~ a few thousands points)
+]
+
+##### A very simple example of the limits :
+.small[
+* The DVF dataset cannot be rpresented at France's scale, only at the "département" level
+* To add simple spatial visualisations of the DB-stored DVF dataset, we would need to use a GIS...
+]
+
+##### At the same time
+.small[
+* Many new technologies allow for webGUI-based analysis : MapboxGL, DeckGL, KeplerGL etc...
+* As much / more performant than GIS or any local software
+]
+.center[
+![:scale 30%](img/kepler1.gif) ![:scale 30%](img/kepler2.gif)
+]
+
+---
+# What about spatial data visualisation ?
+
+### Both R and Python can use performant visualisation solutions :
+
+.pull-left[
+* PyOpenGL
+* PyViz stack (Bokeh, Holoviews, hvPlot...)
+* Plotly
+* mapboxgl-jupyter
+]
+
+.pull-right[
+* RGL
+* Plotly
+* mapdeck
+* leafgl
+]
+
+### Focus on leafgl (R)
+* The versatility of leaflet (a wrapper around the Leaflet.glify JS library)
+* Ability to interact with thousands of spatial entities
+*  Without leaving the CLI environment
+.center[
+![:scale 40%](img/leaflet.glify.gif)
+]
+---
+# What about spatial data visualisation ?
+
+## An example with our DVF dataset :
+* Aggregation on the ~36000 "communes"-scale
+* Computing the mean square-meter price of the transaction for all years
+
+*N.B.* : it can also be integrated inside more complete and ad-hoc applications (Shiny, Dash, Bokeh...)
+
+.small[
+
+```r
+# [...] Preparing the data and loading the usual spatial packages
+# [...] Discretizing the values
+# Making the map
+leaflet() %&gt;%
+    addProviderTiles(provider = providers$CartoDB.DarkMatter) %&gt;%
+*   addGlPolygons(data = map_data, color = communes_colors) # replaces leaflet::addPolygons
+```
+]
+
+---
+# Example
+.center[
+![:scale 100%](img/screenshot_map.png)
+]
+---
+class: middle, center
+# Enriching ESDA with modern tools
+
+## Conclusion :
+* #### Intermediate solutions for intermediate data quantities exist
+* #### Easy to setup/understand, doesn't require much computer science skills or computing power
+* #### Just one small step ahead what you saw at yesterday's workshop
+* #### Don't get blocked by data that are "a bit too big"
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"slideNumberFormat": "%current%/%total%"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

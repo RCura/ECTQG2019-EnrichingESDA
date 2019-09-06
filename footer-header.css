@@ -1,0 +1,89 @@
+/*
+div.my-header {
+    background-color: #F77A00;
+    background: -webkit-gradient(linear, left top, right top, color-stop(0%,#ffb76b), color-stop(0%,#ffa73d), color-stop(0%,#ffffff), color-stop(10%,#ffffff), color-stop(25%,#F77A00), color-stop(100%,#F77A00));
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    height: 30px;
+    width: 100%;
+    text-align: left;
+}
+*/
+.remark-slide-content {
+  padding-top: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-bottom: 10px;
+}
+
+
+.my-footer {
+    text-shadow: none;
+    display: flex;
+    justify-content: space-around;
+    background-color: #23373B;
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    height: 25px;
+    width: 100%;
+    color: #FAFAFA;
+}
+
+/*
+.inverse>div.my-footer {
+    text-shadow: none;
+    display: flex;
+    justify-content: space-around;
+    background-color: #23373B;
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    height: 25px;
+    width: 100%;
+    color: #FAFAFA;
+}
+*/
+
+/* div.my-footer span {
+    font-size: 10pt;
+    color: #F7F8FA;
+    position: absolute;
+    left: 15px;
+    bottom: 2px;
+} */
+
+.remark-slide-number {
+  position: absolute;
+  bottom: 0px;
+  height: 25px;
+  color: #FFFFFF;
+  font-size: 20px;
+  opacity: 0.5; /* default: 0.5 */
+  font-size: 20px;
+    font-weight: 300;
+    line-height: 1.5;
+}
+
+.inverse .remark-slide-number {
+    color: #FFFFFF;
+    opacity: 0.5;
+    bottom: 0px;
+  height: 25px;
+  font-size: 20px;
+    font-weight: 300;
+    line-height: 1.5;
+}
+
+.remark-slide-content {
+    border-top: 50px solid #23373B;
+}
+.remark-slide-content > h1 {
+    font-family: 'Fira Sans';
+    font-weight: normal;
+    font-size: 35px;
+    margin-top: -60px;
+    margin-left: -00px;
+    color: #FAFAFA;
+}
